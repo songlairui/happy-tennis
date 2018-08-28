@@ -58,6 +58,9 @@ class Index extends Component {
   handleBack() {
     Taro.navigateBack()
   }
+  handleTerm({ value }) {
+    Taro.navigateTo({ url: `/pages/terms/detail?v=${parseInt(value)}` })
+  }
   render() {
     return (
       <View className="terms">
@@ -69,12 +72,20 @@ class Index extends Component {
         />
         {this.props.terms.current === 0 ? (
           <View className="tab-content">
-            <AtGrid mode="rect" data={this.state.detail.easy} />
+            <AtGrid
+              mode="rect"
+              data={this.state.detail.easy}
+              onClick={this.handleTerm}
+            />
           </View>
         ) : null}
         {this.props.terms.current === 1 ? (
           <View className="tab-content">
-            <AtGrid mode="rect" data={[{ value: '111' }, { value: '222' }]} />
+            <AtGrid
+              mode="rect"
+              data={this.state.detail.hard}
+              onClick={this.handleTerm}
+            />
           </View>
         ) : null}
       </View>
