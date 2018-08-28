@@ -19,10 +19,7 @@ class Index extends Component {
 
   componentDidHide() {}
   render() {
-    return (
-      <View className="activity">
-      </View>
-    )
+    return <View className="activity" />
   }
 }
 

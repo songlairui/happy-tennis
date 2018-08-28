@@ -1,10 +1,16 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { AtCard, AtList, AtListItem } from 'taro-ui'
+import { AtButton, AtCard, AtList, AtListItem, AtProgress } from 'taro-ui'
 
 import './index.less'
 
 class Index extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      day: new Date().getDay()
+    }
+  }
   config = {
     navigationBarTitleText: '首页',
     navigationStyle: 'custom'
@@ -30,13 +36,43 @@ class Index extends Component {
   render() {
     return (
       <View className="index">
+        <AtCard note="" extra="sz-sport" title="今天" isFull>
+          <View className="terms">
+            <View
+              className={`easy${
+                [1, 3].includes(this.state.day) ? ' active' : ''
+              }`}
+            >
+              黄埔: 123 期 (2/8) 课
+              <AtProgress
+                percent="25"
+                status={[1, 3].includes(this.state.day) ? 'progress' : ''}
+              />
+            </View>
+            <View
+              className={`hard${
+                [2, 4].includes(this.state.day) ? ' active' : ''
+              }`}
+            >
+              西点: 104 期 (1/8) 课
+              <AtProgress
+                percent="12"
+                status={[2, 4].includes(this.state.day) ? 'progress' : ''}
+              />
+            </View>
+          </View>
+          <View className="divider" />
+          <AtButton
+            icon="clock"
+            type="primary"
+            size="normal"
+            onClick={this.handleGoto.bind(this, '/pages/activity/index')}
+          >
+            GETHER
+          </AtButton>
+        </AtCard>
         <AtCard note="----" extra="sz-sport" title="welcome" isFull>
           <AtList>
-            <AtListItem
-              title="活动召集"
-              note="活动召集"
-              onClick={this.handleGoto.bind(this, '/pages/activity/index')}
-            />
             <AtListItem title="新班级" note="新班级" arrow="right" />
             <AtListItem
               arrow="right"

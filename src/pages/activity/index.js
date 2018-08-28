@@ -2,7 +2,7 @@ import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { AtCard, AtNoticebar, AtActivityIndicator } from 'taro-ui'
 
-import '../index.less'
+import './index.less'
 
 class Index extends Component {
   constructor(props) {
