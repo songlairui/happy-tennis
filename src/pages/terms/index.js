@@ -1,7 +1,7 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
-import { AtGrid, AtNavBar, AtSegmentedControl } from 'taro-ui'
+import { AtGrid, AtSegmentedControl } from 'taro-ui'
 import './index.less'
 import { switchClass } from '../../actions/terms'
 
@@ -29,11 +29,13 @@ class Index extends Component {
         easy: easy
           .fill(0)
           .map((__, i) => ({ value: `${i + 1}期` }))
-          .reverse(),
+          .reverse()
+          .slice(0, 30),
         hard: hard
           .fill(0)
           .map((__, i) => ({ value: `${i + 1}期` }))
           .reverse()
+          .slice(0, 30)
       }
     }
   }
@@ -59,17 +61,11 @@ class Index extends Component {
   render() {
     return (
       <View className="terms">
-        <View className="navTop" />
-        <AtNavBar
-          onClickLeftIcon={this.handleBack}
-          color="#000"
-          title="TENNIS"
-          leftText="返回"
-        />
         <AtSegmentedControl
           values={['黄埔', '西点']}
           onClick={this.props.switchClass}
           current={this.props.terms.current}
+          fontSize="32"
         />
         {this.props.terms.current === 0 ? (
           <View className="tab-content">

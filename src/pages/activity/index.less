@@ -1,0 +1,21 @@
+@import '../index/common.less';
+
+.ground {
+  padding: 5vw 0;
+  display: flex;
+  justify-content: space-around;
+  .ground-item {
+    width: 20vw;
+    height: 20vw;
+    background: #eee;
+    border-radius: 3%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: gray;
+    &.active {
+      background: yellowgreen;
+      color: white;
+    }
+  }
+}

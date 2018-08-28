@@ -12,9 +12,14 @@ const store = configStore()
 
 class App extends Component {
   config = {
-    pages: ['pages/index/index', 'pages/terms/index'],
+    pages: [
+      'pages/index/index',
+      'pages/terms/index',
+      'pages/activity/index',
+      'pages/today/index'
+    ],
     window: {
-      navigationStyle: 'custom',
+      // navigationStyle: 'custom',
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
