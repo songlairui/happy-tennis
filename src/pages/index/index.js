@@ -1,49 +1,51 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Button } from '@tarojs/components'
-import { connect } from '@tarojs/redux'
-
-import { add, minus, asyncAdd } from '../../actions/counter'
+import { View } from '@tarojs/components'
+import { AtCard, AtNavBar, AtList, AtListItem } from 'taro-ui'
 
 import './index.less'
 
-
-@connect(({ counter }) => ({
-  counter
-}), (dispatch) => ({
-  add () {
-    dispatch(add())
-  },
-  dec () {
-    dispatch(minus())
-  },
-  asyncAdd () {
-    dispatch(asyncAdd())
-  }
-}))
 class Index extends Component {
-
-    config = {
+  config = {
     navigationBarTitleText: '首页'
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     console.log(this.props, nextProps)
   }
 
-  componentWillUnmount () { }
+  componentWillUnmount() {}
 
-  componentDidShow () { }
+  componentDidShow() {}
 
-  componentDidHide () { }
-
-  render () {
+  componentDidHide() {}
+  handleChange(...x) {
+    console.warn('handleChange', ...x)
+  }
+  handleGoto(target) {
+    console.warn(target)
+    Taro.navigateTo({
+      url: '/pages/terms/index'
+    })
+  }
+  render() {
     return (
-      <View className='index'>
-        <Button className='add_btn' onClick={this.props.add}>+</Button>
-        <Button className='dec_btn' onClick={this.props.dec}>-</Button>
-        <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
-        <View>{this.props.counter.num}</View>
-        <View>Hello, World</View>
+      <View className="index">
+        <View className="navTop" />
+        <AtNavBar color="#000" title="TENNIS" leftText="SZ" />
+        <View className="divider" />
+        <AtCard note="via" extra="sz-sport" title="功能列表">
+          <AtList>
+            <AtListItem title="活动召集" note="活动召集" />
+            <AtListItem title="新班级" note="新班级" arrow="right" />
+            <AtListItem
+              arrow="right"
+              note="黄埔班、西点班"
+              title="班级列表"
+              extraText="详情"
+              onClick={this.handleGoto}
+            />
+          </AtList>
+        </AtCard>
       </View>
     )
   }

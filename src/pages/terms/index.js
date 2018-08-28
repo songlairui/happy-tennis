@@ -1,0 +1,89 @@
+import Taro, { Component } from '@tarojs/taro'
+import { View } from '@tarojs/components'
+import { connect } from '@tarojs/redux'
+import { AtGrid, AtNavBar, AtSegmentedControl } from 'taro-ui'
+import './index.less'
+import { switchClass } from '../../actions/terms'
+
+@connect(
+  ({ terms }) => ({
+    terms
+  }),
+  dispatch => ({
+    switchClass(t) {
+      dispatch(switchClass(t))
+    }
+  })
+)
+class Index extends Component {
+  constructor(props) {
+    super(props)
+
+    const easy = []
+    const hard = []
+    easy.length = 123
+    hard.length = 104
+
+    this.state = {
+      detail: {
+        easy: easy
+          .fill(0)
+          .map((__, i) => ({ value: `${i + 1}期` }))
+          .reverse(),
+        hard: hard
+          .fill(0)
+          .map((__, i) => ({ value: `${i + 1}期` }))
+          .reverse()
+      }
+    }
+  }
+  config = {
+    navigationBarTitleText: '班级'
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log(this.props, nextProps)
+  }
+
+  componentWillUnmount() {}
+
+  componentDidShow() {}
+
+  componentDidHide() {}
+  handleClick(...x) {
+    console.warn('handleClick', ...x)
+  }
+  handleBack() {
+    Taro.navigateBack()
+  }
+  render() {
+    return (
+      <View className="terms">
+        <View className="navTop" />
+        <AtNavBar
+          onClickLeftIcon={this.handleBack}
+          color="#000"
+          title="TENNIS"
+          leftText="返回"
+        />
+        <AtSegmentedControl
+          values={['黄埔', '西点']}
+          onClick={this.props.switchClass}
+          current={this.props.terms.current}
+        />
+        {this.props.terms.current === 0 ? (
+          <View className="tab-content">
+            <AtGrid mode="rect" data={this.state.detail.easy} />
+          </View>
+        ) : null}
+        {this.props.terms.current === 1 ? (
+          <View className="tab-content">
+            <AtGrid mode="rect" data={[{ value: '111' }, { value: '222' }]} />
+          </View>
+        ) : null}
+      </View>
+    )
+  }
+}
+
+export default Index
