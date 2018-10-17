@@ -1,5 +1,5 @@
-import Taro, { Component } from "@tarojs/taro";
-import { View, Button } from "@tarojs/components";
+import Taro, { Component } from '@tarojs/taro'
+import { View, Button } from '@tarojs/components'
 import {
   AtButton,
   AtCard,
@@ -7,104 +7,104 @@ import {
   AtListItem,
   AtProgress,
   AtToast
-} from "taro-ui";
+} from 'taro-ui'
 
-import "./index.less";
+import './index.less'
 
 class Index extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       needAuth: false,
-      canIUse: Taro.canIUse("button.open-type.getUserInfo"),
+      canIUse: Taro.canIUse('button.open-type.getUserInfo'),
       toast: {
         visible: false,
-        text: "",
-        status: ""
+        text: '',
+        status: ''
       }
-    };
+    }
   }
   config = {
-    navigationBarTitleText: "MAIN"
-  };
+    navigationBarTitleText: 'MAIN'
+  }
 
   componentWillReceiveProps(nextProps) {
-    console.log(this.props, nextProps);
+    console.log(this.props, nextProps)
   }
 
   componentWillUnmount() {}
 
   componentDidShow() {
     // 查看是否授权
-    if (Taro.getStorageSync("identity")) return;
-    this.getIdentity();
+    if (Taro.getStorageSync('identity')) return
+    this.getIdentity()
   }
 
   componentDidHide() {}
   getIdentity() {
-    const vm = this;
-    console.warn("getSetting");
+    const vm = this
+    console.warn('getSetting')
     Taro.getSetting({
       success(res) {
-        console.warn("checkAuth");
-        if (res.authSetting["scope.userInfo"]) {
+        console.warn('checkAuth')
+        if (res.authSetting['scope.userInfo']) {
           // 已经授权，可以直接调用 getUserInfo 获取头像昵称
-          console.warn("getUserInfo");
+          console.warn('getUserInfo')
 
           Taro.getUserInfo({
             success: function(user) {
-              Taro.setStorageSync("identity", user);
+              Taro.setStorageSync('identity', user)
               vm.setState({
                 toast: {
                   visible: true,
-                  text: "用户信息获取成功",
-                  status: "success"
+                  text: '用户信息获取成功',
+                  status: 'success'
                 }
-              });
+              })
             },
             fail(err) {
-              console.warn("getUserInfo", err);
+              console.warn('getUserInfo', err)
             }
-          });
+          })
         } else {
           vm.setState({
             needAuth: true
-          });
+          })
         }
       },
       fail(err) {
-        console.warn(err);
+        console.warn(err)
       }
-    });
+    })
   }
   handleChange(...x) {
-    console.warn("handleChange", ...x);
+    console.warn('handleChange', ...x)
   }
   handleGoto(target) {
     Taro.navigateTo({
       url: target
-    });
+    })
   }
   handleGetUserInfo(e) {
-    const userInfo = e.detail.userInfo;
-    console.warn("handleGetUserInfo", e);
+    const userInfo = e.detail.userInfo
+    console.warn('handleGetUserInfo', e)
     if (!userInfo) {
       this.setState({
-        toast: { visible: true, text: "授权后才能参加活动", status: "error" }
-      });
+        toast: { visible: true, text: '授权后才能参加活动', status: 'error' }
+      })
     } else {
       this.setState({
         needAuth: false
-      });
-      this.getIdentity();
+      })
+      this.getIdentity()
     }
   }
   handleClose = () => {
-    console.warn("close");
+    console.warn('close')
     this.setState({
-      toast: { visible: false, status: "" }
-    });
-  };
+      toast: { visible: false, status: '' }
+    })
+  }
   render() {
     return (
       <View className="wrapper">
@@ -142,15 +142,18 @@ class Index extends Component {
           <View className="action create">
             <AtButton
               type="primary"
-              onClick={this.handleGoto.bind(this, "/pages/activity/index")}
+              onClick={this.handleGoto.bind(
+                this,
+                '/pages/activity/index?id=new'
+              )}
             >
               新建召集
             </AtButton>
           </View>
         </View>
       </View>
-    );
+    )
   }
 }
 
-export default Index;
+export default Index

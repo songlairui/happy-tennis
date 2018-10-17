@@ -32,7 +32,9 @@ class App extends Component {
 
   componentDidMount() {}
 
-  componentDidShow() {}
+  componentDidShow() {
+    console.warn('App onShow', this.$router)
+  }
 
   componentDidHide() {}
 
