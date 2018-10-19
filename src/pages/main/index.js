@@ -8,6 +8,7 @@ import {
   AtProgress,
   AtToast
 } from 'taro-ui'
+import * as api from '../../api'
 
 import './index.less'
 
@@ -35,47 +36,77 @@ class Index extends Component {
   componentWillUnmount() {}
 
   componentDidShow() {
-    // 查看是否授权
-    if (Taro.getStorageSync('identity')) return
-    this.getIdentity()
+    this.init()
   }
 
   componentDidHide() {}
-  getIdentity() {
-    const vm = this
-    console.warn('getSetting')
-    Taro.getSetting({
-      success(res) {
-        console.warn('checkAuth')
-        if (res.authSetting['scope.userInfo']) {
-          // 已经授权，可以直接调用 getUserInfo 获取头像昵称
-          console.warn('getUserInfo')
-
-          Taro.getUserInfo({
-            success: function(user) {
-              Taro.setStorageSync('identity', user)
-              vm.setState({
-                toast: {
-                  visible: true,
-                  text: '用户信息获取成功',
-                  status: 'success'
-                }
-              })
-            },
-            fail(err) {
-              console.warn('getUserInfo', err)
-            }
-          })
-        } else {
-          vm.setState({
-            needAuth: true
-          })
-        }
-      },
-      fail(err) {
-        console.warn(err)
+  async init() {
+    // 查看是否授权
+    await new Promise(r => {
+      const currentIdentity = Taro.getStorageSync('identity')
+      if (currentIdentity) {
+        api.report({ type: 'open', remark: currentIdentity.userInfo })
+        return r(currentIdentity)
       }
+      return this.getIdentity().then(identity => {
+        Taro.setStorageSync('identity', identity)
+        this.setState({
+          toast: {
+            visible: true,
+            text: '登陆中',
+            status: 'success'
+          }
+        })
+        api
+          .report({ type: 'open', remark: identity.userInfo })
+          .catch(console.warn)
+      })
     })
+      .then(a => {
+        console.warn('a', a)
+        return a
+      })
+      .then(identity => this.login(identity))
+      .catch(err => {
+        this.setState({
+          needAuth: true
+        })
+        api.report({
+          type: err.type || 'init',
+          remark: `${err.remark} ${err.message}`
+        })
+      })
+  }
+  getIdentity() {
+    return new Promise((success, j) => {
+      Taro.getSetting({
+        async success(res) {
+          if (res.authSetting['scope.userInfo']) {
+            // 已经授权，可以直接调用 getUserInfo 获取头像昵称
+            Taro.getUserInfo({
+              success,
+              fail: err =>
+                j(Object.assign(err, { type: 'auth', remark: 'failed' }))
+            })
+          } else {
+            j({ msg: 'need getSetting auth', type: 'auth' })
+          }
+        },
+        fail: err => j(Object.assign(err, { remark: 'getSetting fail' }))
+      })
+    })
+  }
+  login(identity) {
+    console.warn('login---')
+    if (Taro.getStorageSync('jwtInfo')) return
+    const { iv, encryptedData } = identity || Taro.getStorageSync('identity')
+    return new Promise(success => {
+      Taro.login({ success })
+    })
+      .then(({ code }) => api.login({ code, iv, encryptedData }))
+      .then(jwtInfo => {
+        Taro.setStorageSync('jwtInfo', jwtInfo)
+      })
   }
   handleChange(...x) {
     console.warn('handleChange', ...x)
@@ -85,10 +116,11 @@ class Index extends Component {
       url: target
     })
   }
-  handleGetUserInfo(e) {
+  async handleGetUserInfo(e) {
     const userInfo = e.detail.userInfo
     console.warn('handleGetUserInfo', e)
     if (!userInfo) {
+      await api.report({ type: 'auth', remark: 'cancel clicked' })
       this.setState({
         toast: { visible: true, text: '授权后才能参加活动', status: 'error' }
       })
