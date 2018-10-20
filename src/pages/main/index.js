@@ -65,7 +65,7 @@ class Index extends Component {
       const { code } = await new Promise((success, fail) =>
         Taro.login({ success, fail })
       )
-      const { iv, encryptedData } = await this.getIdentity()
+      const { iv, encryptedData, userInfo } = await this.getIdentity()
       const { data: jwtText } = await api.login({ code, iv, encryptedData })
       if (typeof jwtText !== 'string') {
         return Promise.reject({ type: 'login', remark: '登陆失败' })
@@ -77,6 +77,10 @@ class Index extends Component {
           text: '登陆成功',
           status: 'success'
         }
+      })
+      api.report({
+        type: 'login',
+        remark: `success ${userInfo.nickName}`
       })
     } catch (err) {
       console.warn('登陆失败', err)
@@ -112,7 +116,6 @@ class Index extends Component {
     }
   }
   handleClose = () => {
-    console.warn('close')
     this.setState({
       toast: { visible: false, status: '' }
     })
