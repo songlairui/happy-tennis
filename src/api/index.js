@@ -15,6 +15,6 @@ const apiFn = ({ method = 'GET', url = '' }) => data =>
   })
 
 export const report = apiFn({ url: '/trace', method: 'POST' })
-export const login = apiFn({ url: '/login', method: 'POST' })
+export const login = apiFn({ url: '/wx-login', method: 'POST' })
 
 export function blank() {}

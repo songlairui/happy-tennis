@@ -97,15 +97,14 @@ class Index extends Component {
     })
   }
   login(identity) {
-    console.warn('login---')
-    if (Taro.getStorageSync('jwtInfo')) return
+    if (Taro.getStorageSync('jwtInfo')) return console.info('has logon')
     const { iv, encryptedData } = identity || Taro.getStorageSync('identity')
     return new Promise(success => {
       Taro.login({ success })
     })
       .then(({ code }) => api.login({ code, iv, encryptedData }))
-      .then(jwtInfo => {
-        Taro.setStorageSync('jwtInfo', jwtInfo)
+      .then(({ data: { jwtInfo } }) => {
+        if (jwtInfo) Taro.setStorageSync('jwtInfo', jwtInfo)
       })
   }
   handleChange(...x) {
