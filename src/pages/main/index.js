@@ -62,24 +62,22 @@ class Index extends Component {
   async login() {
     if (Taro.getStorageSync('jwtInfo')) return console.info('has logon')
     try {
+      const { code } = await new Promise((success, fail) =>
+        Taro.login({ success, fail })
+      )
       const { iv, encryptedData } = await this.getIdentity()
-      return await new Promise(success => Taro.login({ success }))
-        .then(({ code }) => api.login({ code, iv, encryptedData }))
-        .then(({ data }) => {
-          console.warn('login data', data)
-          if (typeof data !== 'string') {
-            return Promise.reject({ type: 'login', remark: '登陆失败' })
-          }
-
-          Taro.setStorageSync('jwtInfo', data)
-          this.setState({
-            toast: {
-              visible: true,
-              text: '登陆成功',
-              status: 'success'
-            }
-          })
-        })
+      const { data: jwtText } = await api.login({ code, iv, encryptedData })
+      if (typeof jwtText !== 'string') {
+        return Promise.reject({ type: 'login', remark: '登陆失败' })
+      }
+      Taro.setStorageSync('jwtInfo', jwtText)
+      this.setState({
+        toast: {
+          visible: true,
+          text: '登陆成功',
+          status: 'success'
+        }
+      })
     } catch (err) {
       console.warn('登陆失败', err)
       this.setState({
