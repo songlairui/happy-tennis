@@ -36,47 +36,10 @@ class Index extends Component {
   componentWillUnmount() {}
 
   componentDidShow() {
-    this.init()
+    this.login()
   }
 
   componentDidHide() {}
-  async init() {
-    // 查看是否授权
-    await new Promise(r => {
-      const currentIdentity = Taro.getStorageSync('identity')
-      if (currentIdentity) {
-        api.report({ type: 'open', remark: currentIdentity.userInfo })
-        return r(currentIdentity)
-      }
-      return this.getIdentity().then(identity => {
-        Taro.setStorageSync('identity', identity)
-        this.setState({
-          toast: {
-            visible: true,
-            text: '登陆中',
-            status: 'success'
-          }
-        })
-        api
-          .report({ type: 'open', remark: identity.userInfo })
-          .catch(console.warn)
-      })
-    })
-      .then(a => {
-        console.warn('a', a)
-        return a
-      })
-      .then(identity => this.login(identity))
-      .catch(err => {
-        this.setState({
-          needAuth: true
-        })
-        api.report({
-          type: err.type || 'init',
-          remark: `${err.remark} ${err.message}`
-        })
-      })
-  }
   getIdentity() {
     return new Promise((success, j) => {
       Taro.getSetting({
@@ -96,17 +59,37 @@ class Index extends Component {
       })
     })
   }
-  login(identity) {
+  async login() {
     if (Taro.getStorageSync('jwtInfo')) return console.info('has logon')
-    const { iv, encryptedData, userInfo } =
-      identity || Taro.getStorageSync('identity')
-    return new Promise(success => {
-      Taro.login({ success })
-    })
-      .then(({ code }) => api.login({ code, iv, encryptedData, userInfo }))
-      .then(({ data: { jwtInfo } }) => {
-        if (jwtInfo) Taro.setStorageSync('jwtInfo', jwtInfo)
+    try {
+      const { iv, encryptedData } = await this.getIdentity()
+      return await new Promise(success => Taro.login({ success }))
+        .then(({ code }) => api.login({ code, iv, encryptedData }))
+        .then(({ data }) => {
+          console.warn('login data', data)
+          if (typeof data !== 'string') {
+            return Promise.reject({ type: 'login', remark: '登陆失败' })
+          }
+
+          Taro.setStorageSync('jwtInfo', data)
+          this.setState({
+            toast: {
+              visible: true,
+              text: '登陆成功',
+              status: 'success'
+            }
+          })
+        })
+    } catch (err) {
+      console.warn('登陆失败', err)
+      this.setState({
+        needAuth: true
       })
+      api.report({
+        type: err.type || 'init',
+        remark: `${err.remark || '-'} ${err.message || ''}`
+      })
+    }
   }
   handleChange(...x) {
     console.warn('handleChange', ...x)
@@ -118,7 +101,6 @@ class Index extends Component {
   }
   async handleGetUserInfo(e) {
     const userInfo = e.detail.userInfo
-    console.warn('handleGetUserInfo', e)
     if (!userInfo) {
       await api.report({ type: 'auth', remark: 'cancel clicked' })
       this.setState({
@@ -128,7 +110,7 @@ class Index extends Component {
       this.setState({
         needAuth: false
       })
-      this.getIdentity()
+      this.login()
     }
   }
   handleClose = () => {
