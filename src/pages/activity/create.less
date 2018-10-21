@@ -1,11 +1,63 @@
 .wrapper {
-  padding-top: 160px;
+  background: #f3f2f3;
+  padding-top: 120px;
+  min-height: 100%;
+}
+.date-picker,
+.time-picker,
+.title,
+.location,
+.description,
+.location-radio {
+  border-radius: 0.6em;
+  background: #fafafa;
+  box-shadow: 1px 5px 10px -2px #e2e3f5;
+}
+.title,
+.location,
+.description {
+  margin: 1em;
+  padding: 0.5em 2em;
+}
+
+.location-radio,
+.date-picker,
+.time-picker {
+  margin: 0 1em;
+  background: #fff;
 }
 .date-picker {
   padding: 1em 0;
   font-size: 0.8em;
   text-indent: 2em;
+  .day {
+    font-size: 2em;
+    font-weight: bold;
+    color: #333;
+    line-height: 1.8em;
+  }
+  .year {
+    font-size: 1em;
+    font-style: italic;
+    text-indent: 5em;
+    color: #555;
+  }
 }
 .time-picker {
   padding: 1em 2em;
+}
+.title {
+  text-align: center;
+}
+
+.location {
+  .content {
+    font-size: 0.8em;
+    margin-left: 1em;
+    color: darkolivegreen;
+  }
+}
+
+.location-radio {
+  margin-bottom: 0.5em;
 }

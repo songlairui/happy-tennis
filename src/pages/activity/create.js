@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Picker } from '@tarojs/components'
-import { AtForm, AtInput, AtButton, AtRadio, AtTimeline } from 'taro-ui'
+import { View, Text, Input, Picker } from '@tarojs/components'
+import { AtButton, AtRadio, AtTimeline, AtIcon } from 'taro-ui'
 
 import './create.less'
 
@@ -8,7 +8,14 @@ const timeArray = new Array(7).fill(0).map((__, i) => ({
   val: i + 16,
   me: `${i + 16}:00`
 }))
-
+const locations = [
+  {
+    label: '华侨城网球中心',
+    value: '华侨城网球中心'
+  },
+  { label: '大学城体育场', value: '大学城体育场' },
+  { label: '其他', value: '其他', desc: '待通知' }
+]
 class Index extends Component {
   constructor(props) {
     super(props)
@@ -16,7 +23,7 @@ class Index extends Component {
     this.state = {
       form: {
         title: '快乐网球召集',
-        location: 'default',
+        location: '华侨城网球中心',
         date: new Date().toLocaleDateString().replace(/\//g, '-'),
         description: ''
       },
@@ -24,16 +31,21 @@ class Index extends Component {
       timeArray: [[...timeArray], timeArray.slice(start)]
     }
   }
-
-  handleChange(key, value) {
-    console.warn({ key, value })
+  inputChange(key, e) {
+    const value = e.detail.value
     this.setState(state => {
       Object.assign(state.form, { [key]: value })
       return state
     })
   }
-  dateChange(key, e) {
-    const value = e.detail.value
+  handleChange(key, value) {
+    this.setState(state => {
+      Object.assign(state.form, { [key]: value })
+      return state
+    })
+  }
+  stateChange(key, e) {
+    const value = typeof e === 'string' ? e : e.detail.value
     this.setState(state => {
       Object.assign(state, { [key]: value })
       return state
@@ -66,7 +78,7 @@ class Index extends Component {
     })
   }
   onSubmit(event) {
-    console.log(event)
+    console.log('e', event)
   }
   onReset(event) {
     console.log(event)
@@ -74,94 +86,92 @@ class Index extends Component {
   render() {
     return (
       <View className="wrapper">
-        <AtForm
-          onSubmit={this.onSubmit.bind(this)}
-          onReset={this.onReset.bind(this)}
-        >
-          <AtInput
-            name="标题"
-            title="标题"
+        <View className="title">
+          <Input
             type="text"
-            placeholder="快乐网球召集"
+            placeholder="点击填写活动名称"
             value={this.state.form.title}
-            onChange={this.handleChange.bind(this, 'title')}
+            onChange={this.inputChange.bind(this, 'title')}
           />
-          <View>
-            <Text className="form-item">活动时间：</Text>
-            <View className="date-picker">
-              <Picker mode="date" onChange={this.dateChange.bind(this, 'date')}>
-                <View className="picker">{this.state.form.date}</View>
-              </Picker>
-            </View>
-            <View className="time-picker">
+        </View>
+        <View className="datetime">
+          <View className="at-row">
+            <View className="at-col">
               <Picker
-                mode="multiSelector"
-                rangeKey="me"
-                onChange={this.dateChange.bind(this, 'period')}
-                onColumnChange={this.dataColChange.bind(this, 'period')}
-                range={this.state.timeArray}
-                value={this.state.period}
+                mode="date"
+                onChange={this.stateChange.bind(this, 'date')}
               >
-                <View className="at-row">
-                  <View className="at-col">
-                    <AtTimeline
-                      items={[
-                        {
-                          title: (
-                            (this.state.timeArray[0] || [])[
-                              this.state.period[0]
-                            ] || {}
-                          ).me,
-                          icon: 'clock'
-                        }
-                      ]}
-                    />
-                  </View>
-                  <View className="at-col">
-                    <AtTimeline
-                      items={[
-                        {
-                          title: (
-                            (this.state.timeArray[1] || [])[
-                              this.state.period[1]
-                            ] || {}
-                          ).me,
-                          icon: 'clock'
-                        }
-                      ]}
-                    />
+                <View className="date-picker">
+                  <View className="day">{this.state.form.date.slice(5)}</View>
+                  <View className="year">
+                    {this.state.form.date.slice(0, 4)}
                   </View>
                 </View>
               </Picker>
             </View>
+            <View className="at-col">
+              <Picker
+                mode="multiSelector"
+                rangeKey="me"
+                onChange={this.stateChange.bind(this, 'period')}
+                onColumnChange={this.dataColChange.bind(this, 'period')}
+                range={this.state.timeArray}
+                value={this.state.period}
+              >
+                <View className="time-picker">
+                  <AtTimeline
+                    items={[
+                      {
+                        title: (
+                          (this.state.timeArray[0] || [])[
+                            this.state.period[0]
+                          ] || {}
+                        ).me,
+                        icon: 'clock'
+                      },
+                      {
+                        title: (
+                          (this.state.timeArray[1] || [])[
+                            this.state.period[1]
+                          ] || {}
+                        ).me,
+                        icon: 'clock'
+                      }
+                    ]}
+                  />
+                </View>
+              </Picker>
+            </View>
           </View>
-          <View>
-            活动地点：
-            <AtRadio
-              options={[
-                {
-                  label: '华侨城网球中心',
-                  value: 'default'
-                },
-                { label: '大学城体育场', value: 'daxuecheng' },
-                { label: '其他', value: 'other', desc: '待通知' }
-              ]}
-              value={this.state.form.location}
-              onClick={this.handleChange.bind(this, 'location')}
-            />
-          </View>
-
-          <AtInput
+        </View>
+        <View />
+        <View className="description">
+          <Input
             name="标题"
             title="练习内容"
             type="text"
-            placeholder="第n课、对拉练习"
+            placeholder="点击填写训练内容"
             value={this.state.form.description}
-            onChange={this.handleChange.bind(this, 'description')}
+            onChange={this.inputChange.bind(this, 'description')}
           />
-          <AtButton formType="submit">提交</AtButton>
-          <AtButton formType="reset">重置</AtButton>
-        </AtForm>
+        </View>
+        <View className="location">
+          <AtIcon value="map-pin" size="20" color="#356" />
+          <Text className="content">{this.state.form.location}</Text>
+        </View>
+        <View className="location-radio">
+          <AtRadio
+            options={locations}
+            value={this.state.form.location}
+            onClick={this.handleChange.bind(this, 'location')}
+          />
+        </View>
+        <AtButton onSubmit={this.onSubmit.bind(this)} formType="submit">
+          提交
+        </AtButton>
+        <AtButton onReset={this.onReset.bind(this)} formType="reset">
+          重置
+        </AtButton>
       </View>
     )
   }
