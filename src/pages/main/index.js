@@ -1,13 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Button } from '@tarojs/components'
-import {
-  AtButton,
-  AtCard,
-  AtList,
-  AtListItem,
-  AtProgress,
-  AtToast
-} from 'taro-ui'
+import { AtButton, AtToast } from 'taro-ui'
 import * as api from '../../api'
 
 import './index.less'
@@ -159,7 +152,7 @@ class Index extends Component {
               type="primary"
               onClick={this.handleGoto.bind(
                 this,
-                '/pages/activity/index?id=new'
+                '/pages/activity/create?id=new'
               )}
             >
               新建召集
