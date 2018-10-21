@@ -166,12 +166,13 @@ class Index extends Component {
     this.setState(newState)
   }
   render() {
-    return this.state.loading ? (
+    return (
       <View className="wrapper">
-        <AtActivityIndicator mode="center" />
-      </View>
-    ) : (
-      <View className="wrapper">
+        {this.state.loading && (
+          <View className="mask">
+            <AtActivityIndicator mode="center" />
+          </View>
+        )}
         <View className="title">
           {this.state.editMode ? (
             <Input
@@ -295,16 +296,19 @@ class Index extends Component {
             <Text className="content">{this.state.form.location}</Text>
           </View>
         )}
-        <View className="location-radio">
-          {this.state.id && <Button open-type="share">召集</Button>}
+        {!this.state.editMode &&
+          this.state.id && (
+            <View className="share-block">
+              <Button className="share" open-type="share">
+                召集
+              </Button>
+            </View>
+          )}
+        <View className="form-item fixed">
           {this.state.editMode ? (
-            <AtButton onClick={this.onSubmit.bind(this)} formType="submit">
-              🎾 确定 🎾
-            </AtButton>
+            <AtButton onClick={this.onSubmit.bind(this)}>🎾 确定 🎾</AtButton>
           ) : (
-            <AtButton onClick={this.changeMode.bind(this)} formType="reset">
-              修改
-            </AtButton>
+            <AtButton onClick={this.changeMode.bind(this)}>修改</AtButton>
           )}
         </View>
       </View>
