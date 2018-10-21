@@ -152,7 +152,7 @@ class Index extends Component {
               type="primary"
               onClick={this.handleGoto.bind(
                 this,
-                '/pages/activity/create?id=3'
+                '/pages/activity/create'
               )}
             >
               新建召集
