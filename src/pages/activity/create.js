@@ -1,6 +1,13 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Input, Picker } from '@tarojs/components'
-import { AtButton, AtRadio, AtTimeline, AtIcon } from 'taro-ui'
+import { View, Text, Input, Picker, Button } from '@tarojs/components'
+import {
+  AtButton,
+  AtRadio,
+  AtTimeline,
+  AtIcon,
+  AtActivityIndicator
+} from 'taro-ui'
+import * as api from '../../api'
 
 import './create.less'
 
@@ -22,15 +29,17 @@ class Index extends Component {
     super(props)
     const start = 4 // 20:00
     this.state = {
+      id: '',
       form: {
         title: '快乐网球召集',
         location: '华侨城网球中心',
         date: `${today.getFullYear()}-${today.getMonth() +
           1}-${today.getDate()}`,
-        description: ''
+        detail: ''
       },
       period: [4, 2],
-      timeArray: [[...timeArray], timeArray.slice(start)]
+      timeArray: [[...timeArray], timeArray.slice(start)],
+      loading: true
     }
   }
   inputChange(key, e) {
@@ -83,14 +92,48 @@ class Index extends Component {
       return state
     })
   }
-  onSubmit(event) {
-    console.log('e', event)
+  async onSubmit() {
+    const payload = {
+      ...this.state.form,
+      start: ((this.state.timeArray[0] || [])[this.state.period[0]] || {}).me,
+      end: ((this.state.timeArray[1] || [])[this.state.period[1]] || {}).me
+    }
+    const { data } = await api.newActivity(payload)
+    console.warn('submit', this, data)
+    this.setState({ id: data.id })
   }
   onReset(event) {
     console.log(event)
   }
+
+  onShareAppMessage(res) {
+    if (res.from === 'button') {
+      // 来自页面内转发按钮
+      console.log(res.target)
+    }
+    return {
+      title: this.state.form.title,
+      path: `/page/create/index?id=${this.state.id}`
+    }
+  }
+
+  async componentDidShow() {
+    const { id } = this.$router.params
+    console.warn('opening activity', id, this)
+    const newState = { loading: false }
+    if (id) {
+      newState.id = id
+      const { data } = await api.getActivity(id).catch(console.error)
+      console.info('activity', data)
+    }
+    this.setState(newState)
+  }
   render() {
-    return (
+    return this.state.loading ? (
+      <View className="wrapper">
+        <AtActivityIndicator mode="center" />
+      </View>
+    ) : (
       <View className="wrapper">
         <View className="title">
           <Input
@@ -151,14 +194,14 @@ class Index extends Component {
           </View>
         </View>
         <View />
-        <View className="description">
+        <View className="detail">
           <Input
             name="标题"
             title="练习内容"
             type="text"
             placeholder="点击填写训练内容、其他说明"
-            value={this.state.form.description}
-            onChange={this.inputChange.bind(this, 'description')}
+            value={this.state.form.detail}
+            onChange={this.inputChange.bind(this, 'detail')}
           />
         </View>
         <View className="location">
@@ -173,13 +216,14 @@ class Index extends Component {
           />
         </View>
         <View className="location-radio">
+          {this.state.id && <Button open-type="share">召集</Button>}
           <AtButton onClick={this.onSubmit.bind(this)} formType="submit">
             🎾 确定 🎾
           </AtButton>
         </View>
         <AtButton onClick={this.onReset.bind(this)} formType="reset">
           重置
-        </AtButton>
+        </AtButton>{' '}
       </View>
     )
   }

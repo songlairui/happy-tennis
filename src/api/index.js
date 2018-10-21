@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 
-const baseDomain = 'http://localhost:3001'
+const baseDomain = 'http://192.168.50.64:3001'
 
 const apiFn = ({ method = 'GET', url = '', auth = false }) => data =>
   new Promise((success, fail) => {
@@ -23,5 +23,7 @@ const apiFn = ({ method = 'GET', url = '', auth = false }) => data =>
 
 export const report = apiFn({ url: '/trace', method: 'POST' })
 export const login = apiFn({ url: '/wx-login', method: 'POST' })
+export const newActivity = apiFn({ url: '/activity', method: 'POST' })
+export const getActivity = id => apiFn({ url: `/activity/${id}` })()
 
 export function blank() {}
