@@ -99,9 +99,16 @@ class Index extends Component {
       start: ((this.state.timeArray[0] || [])[this.state.period[0]] || {}).me,
       end: ((this.state.timeArray[1] || [])[this.state.period[1]] || {}).me
     }
-    const { data } = await api.newActivity(payload)
-    console.warn('submit', this, data)
-    this.setState({ id: data.id })
+    this.changeMode()
+    if (this.state.id) return console.error('TODO UPDATE')
+    const activity = await api.newActivity(payload)
+    console.warn('submit', this, activity)
+    this.setState({ id: activity.id })
+  }
+  changeMode() {
+    this.setState({
+      editMode: !this.state.editMode
+    })
   }
   onReset(event) {
     console.log(event)
@@ -120,11 +127,10 @@ class Index extends Component {
 
   async componentDidShow() {
     const { id } = this.$router.params
-    console.warn('opening activity', id, this)
     const newState = { loading: false, editMode: id === undefined }
     if (id !== undefined) {
       newState.id = id
-      const { data: activity } = await api.getActivity(id).catch(console.error)
+      const activity = await api.getActivity(id).catch(console.error)
       if (activity) {
         const { title, location, date, detail } = activity
         newState.form = {
@@ -281,7 +287,7 @@ class Index extends Component {
               🎾 确定 🎾
             </AtButton>
           ) : (
-            <AtButton onClick={this.onReset.bind(this)} formType="reset">
+            <AtButton onClick={this.changeMode.bind(this)} formType="reset">
               修改
             </AtButton>
           )}

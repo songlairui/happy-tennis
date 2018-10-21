@@ -59,7 +59,7 @@ class Index extends Component {
         Taro.login({ success, fail })
       )
       const { iv, encryptedData, userInfo } = await this.getIdentity()
-      const { data: jwtText } = await api.login({ code, iv, encryptedData })
+      const jwtText = await api.login({ code, iv, encryptedData })
       if (typeof jwtText !== 'string') {
         return Promise.reject({ type: 'login', remark: '登陆失败' })
       }
@@ -152,7 +152,7 @@ class Index extends Component {
               type="primary"
               onClick={this.handleGoto.bind(
                 this,
-                '/pages/activity/create?id=new'
+                '/pages/activity/create?id=3'
               )}
             >
               新建召集
