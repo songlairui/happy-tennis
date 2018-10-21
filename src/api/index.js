@@ -37,5 +37,6 @@ export const newActivity = apiFn({ url: '/activity', method: 'POST' })
 export const getActivity = id => apiFn({ url: `/activity/${id}` })()
 export const updateActivity = (id, payload) =>
   apiFn({ url: `/activity/${id}`, method: 'PUT' })(payload)
+export const getActivities = apiFn({ url: '/activities' })
 
 export function blank() {}

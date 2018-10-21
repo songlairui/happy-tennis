@@ -89,7 +89,13 @@ class Index extends Component {
   handleChange(...x) {
     console.warn('handleChange', ...x)
   }
-  handleGoto(target) {
+  async handleGoto(target) {
+    if (!Taro.getStorageSync('jwtInfo')) {
+      this.setState({
+        toast: { visible: true, text: '授权后才能参加活动', status: 'error' }
+      })
+      await new Promise(r => setTimeout(r, 1500))
+    }
     Taro.navigateTo({
       url: target
     })
@@ -108,7 +114,7 @@ class Index extends Component {
       this.login()
     }
   }
-  handleClose = () => {
+  async handleClose() {
     this.setState({
       toast: { visible: false, status: '' }
     })
@@ -150,12 +156,17 @@ class Index extends Component {
           <View className="action create">
             <AtButton
               type="primary"
-              onClick={this.handleGoto.bind(
-                this,
-                '/pages/activity/create'
-              )}
+              onClick={this.handleGoto.bind(this, '/pages/activity/create')}
             >
               新建召集
+            </AtButton>
+          </View>
+          <View className="action create">
+            <AtButton
+              type="secondary"
+              onClick={this.handleGoto.bind(this, '/pages/activity/all')}
+            >
+              我的召集
             </AtButton>
           </View>
         </View>

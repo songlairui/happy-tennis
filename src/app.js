@@ -18,11 +18,12 @@ class App extends Component {
   config = {
     pages: [
       'pages/main/index',
+      'pages/activity/create',
+      'pages/activity/all',
+      'pages/activity/index',
       'pages/index/index',
       'pages/terms/index',
       'pages/terms/detail',
-      'pages/activity/create',
-      'pages/activity/index',
       'pages/today/index'
     ],
     window: {
