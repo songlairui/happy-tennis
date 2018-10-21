@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import Taro, { Component } from '@tarojs/taro'
 import { View, Text, Input, Picker, Button } from '@tarojs/components'
 import {
@@ -24,6 +25,10 @@ const locations = [
   { label: '大学城体育场', value: '大学城体育场' },
   { label: '其他', value: '其他', desc: '待通知' }
 ]
+const cache = {
+  lastForm: {}
+}
+
 class Index extends Component {
   constructor(props) {
     super(props)
@@ -99,14 +104,25 @@ class Index extends Component {
       start: ((this.state.timeArray[0] || [])[this.state.period[0]] || {}).me,
       end: ((this.state.timeArray[1] || [])[this.state.period[1]] || {}).me
     }
-    this.changeMode()
-    if (this.state.id) return console.error('TODO UPDATE')
-    const activity = await api.newActivity(payload)
-    console.warn('submit', this, activity)
-    this.setState({ id: activity.id })
+    this.setState({ loading: true })
+    const newState = {}
+    if (this.state.id) {
+      if (!_.isEqual(cache.lastForm, this.state.form)) {
+        await api.updateActivity(this.state.id, payload)
+        api.report({ type: 'updateActivity', remark: 'this.state.id' })
+      }
+    } else {
+      const activity = await api.newActivity(payload)
+      newState.id = activity.id
+      api.report({ type: 'newActivity', remark: '' })
+    }
+    newState.loading = false
+    cache.lastForm = _.cloneDeep(this.state.form)
+    this.changeMode(newState)
   }
-  changeMode() {
+  changeMode(newState = {}) {
     this.setState({
+      ...newState,
       editMode: !this.state.editMode
     })
   }
@@ -139,6 +155,7 @@ class Index extends Component {
           date,
           detail
         }
+        cache.lastForm = newState.form
         const [startIdx, endIdx] = ['start', 'end'].map(key =>
           Math.max(0, timeArray.findIndex(item => item.me === activity[key]))
         )
