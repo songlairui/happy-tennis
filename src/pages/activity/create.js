@@ -39,7 +39,8 @@ class Index extends Component {
       },
       period: [4, 2],
       timeArray: [[...timeArray], timeArray.slice(start)],
-      loading: true
+      loading: true,
+      editMode: false
     }
   }
   inputChange(key, e) {
@@ -120,11 +121,24 @@ class Index extends Component {
   async componentDidShow() {
     const { id } = this.$router.params
     console.warn('opening activity', id, this)
-    const newState = { loading: false }
-    if (id) {
+    const newState = { loading: false, editMode: id === undefined }
+    if (id !== undefined) {
       newState.id = id
-      const { data } = await api.getActivity(id).catch(console.error)
-      console.info('activity', data)
+      const { data: activity } = await api.getActivity(id).catch(console.error)
+      if (activity) {
+        const { title, location, date, detail } = activity
+        newState.form = {
+          title,
+          location,
+          date,
+          detail
+        }
+        const [startIdx, endIdx] = ['start', 'end'].map(key =>
+          Math.max(0, timeArray.findIndex(item => item.me === activity[key]))
+        )
+        newState.timeArray = [[...timeArray], timeArray.slice(startIdx)]
+        newState.period = [startIdx, endIdx - startIdx]
+      }
     }
     this.setState(newState)
   }
@@ -136,37 +150,75 @@ class Index extends Component {
     ) : (
       <View className="wrapper">
         <View className="title">
-          <Input
-            type="text"
-            placeholder="点击填写活动名称"
-            value={this.state.form.title}
-            onChange={this.inputChange.bind(this, 'title')}
-          />
+          {this.state.editMode ? (
+            <Input
+              type="text"
+              placeholder="点击填写活动名称"
+              value={this.state.form.title}
+              onChange={this.inputChange.bind(this, 'title')}
+            />
+          ) : (
+            <Text>{this.state.form.title}</Text>
+          )}
         </View>
         <View className="datetime">
           <View className="at-row">
             <View className="at-col">
-              <Picker
-                mode="date"
-                onChange={this.inputChange.bind(this, 'date')}
-              >
+              {this.state.editMode ? (
+                <Picker
+                  mode="date"
+                  onChange={this.inputChange.bind(this, 'date')}
+                >
+                  <View className="date-picker">
+                    <View className="day">{this.state.form.date.slice(5)}</View>
+                    <View className="year">
+                      {this.state.form.date.slice(0, 4)}
+                    </View>
+                  </View>
+                </Picker>
+              ) : (
                 <View className="date-picker">
                   <View className="day">{this.state.form.date.slice(5)}</View>
                   <View className="year">
                     {this.state.form.date.slice(0, 4)}
                   </View>
                 </View>
-              </Picker>
+              )}
             </View>
             <View className="at-col">
-              <Picker
-                mode="multiSelector"
-                rangeKey="me"
-                onChange={this.stateChange.bind(this, 'period')}
-                onColumnChange={this.dataColChange.bind(this, 'period')}
-                range={this.state.timeArray}
-                value={this.state.period}
-              >
+              {this.state.editMode ? (
+                <Picker
+                  mode="multiSelector"
+                  rangeKey="me"
+                  onChange={this.stateChange.bind(this, 'period')}
+                  onColumnChange={this.dataColChange.bind(this, 'period')}
+                  range={this.state.timeArray}
+                  value={this.state.period}
+                >
+                  <View className="time-picker">
+                    <AtTimeline
+                      items={[
+                        {
+                          title: (
+                            (this.state.timeArray[0] || [])[
+                              this.state.period[0]
+                            ] || {}
+                          ).me,
+                          icon: 'clock'
+                        },
+                        {
+                          title: (
+                            (this.state.timeArray[1] || [])[
+                              this.state.period[1]
+                            ] || {}
+                          ).me,
+                          icon: 'clock'
+                        }
+                      ]}
+                    />
+                  </View>
+                </Picker>
+              ) : (
                 <View className="time-picker">
                   <AtTimeline
                     items={[
@@ -189,41 +241,51 @@ class Index extends Component {
                     ]}
                   />
                 </View>
-              </Picker>
+              )}
             </View>
           </View>
         </View>
         <View />
         <View className="detail">
-          <Input
-            name="标题"
-            title="练习内容"
-            type="text"
-            placeholder="点击填写训练内容、其他说明"
-            value={this.state.form.detail}
-            onChange={this.inputChange.bind(this, 'detail')}
-          />
+          {this.state.editMode ? (
+            <Input
+              name="标题"
+              title="练习内容"
+              type="text"
+              placeholder="点击填写训练内容、其他说明"
+              value={this.state.form.detail}
+              onChange={this.inputChange.bind(this, 'detail')}
+            />
+          ) : (
+            <Text>{this.state.form.detail}</Text>
+          )}
         </View>
-        <View className="location">
-          <AtIcon value="map-pin" size="20" color="#356" />
-          <Text className="content">{this.state.form.location}</Text>
-        </View>
-        <View className="location-radio">
-          <AtRadio
-            options={locations}
-            value={this.state.form.location}
-            onClick={this.handleChange.bind(this, 'location')}
-          />
-        </View>
+        {this.state.editMode ? (
+          <View className="location-radio">
+            <AtRadio
+              options={locations}
+              value={this.state.form.location}
+              onClick={this.handleChange.bind(this, 'location')}
+            />
+          </View>
+        ) : (
+          <View className="location">
+            <AtIcon value="map-pin" size="20" color="#356" />
+            <Text className="content">{this.state.form.location}</Text>
+          </View>
+        )}
         <View className="location-radio">
           {this.state.id && <Button open-type="share">召集</Button>}
-          <AtButton onClick={this.onSubmit.bind(this)} formType="submit">
-            🎾 确定 🎾
-          </AtButton>
+          {this.state.editMode ? (
+            <AtButton onClick={this.onSubmit.bind(this)} formType="submit">
+              🎾 确定 🎾
+            </AtButton>
+          ) : (
+            <AtButton onClick={this.onReset.bind(this)} formType="reset">
+              修改
+            </AtButton>
+          )}
         </View>
-        <AtButton onClick={this.onReset.bind(this)} formType="reset">
-          重置
-        </AtButton>{' '}
       </View>
     )
   }
