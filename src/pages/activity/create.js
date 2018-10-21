@@ -4,6 +4,7 @@ import { AtButton, AtRadio, AtTimeline, AtIcon } from 'taro-ui'
 
 import './create.less'
 
+const today = new Date()
 const timeArray = new Array(7).fill(0).map((__, i) => ({
   val: i + 16,
   me: `${i + 16}:00`
@@ -24,7 +25,8 @@ class Index extends Component {
       form: {
         title: '快乐网球召集',
         location: '华侨城网球中心',
-        date: new Date().toLocaleDateString().replace(/\//g, '-'),
+        date: `${today.getFullYear()}-${today.getMonth() +
+          1}-${today.getDate()}`,
         description: ''
       },
       period: [4, 2],
@@ -33,10 +35,7 @@ class Index extends Component {
   }
   inputChange(key, e) {
     const value = e.detail.value
-    this.setState(state => {
-      Object.assign(state.form, { [key]: value })
-      return state
-    })
+    this.dateChange(key, value)
   }
   handleChange(key, value) {
     this.setState(state => {
@@ -48,6 +47,13 @@ class Index extends Component {
     const value = typeof e === 'string' ? e : e.detail.value
     this.setState(state => {
       Object.assign(state, { [key]: value })
+      return state
+    })
+  }
+  dateChange(key, value) {
+    console.warn('key', key, value)
+    this.setState(state => {
+      Object.assign(state.form, { [key]: value })
       return state
     })
   }
@@ -99,7 +105,7 @@ class Index extends Component {
             <View className="at-col">
               <Picker
                 mode="date"
-                onChange={this.stateChange.bind(this, 'date')}
+                onChange={this.inputChange.bind(this, 'date')}
               >
                 <View className="date-picker">
                   <View className="day">{this.state.form.date.slice(5)}</View>
@@ -150,7 +156,7 @@ class Index extends Component {
             name="标题"
             title="练习内容"
             type="text"
-            placeholder="点击填写训练内容"
+            placeholder="点击填写训练内容、其他说明"
             value={this.state.form.description}
             onChange={this.inputChange.bind(this, 'description')}
           />
@@ -166,10 +172,12 @@ class Index extends Component {
             onClick={this.handleChange.bind(this, 'location')}
           />
         </View>
-        <AtButton onSubmit={this.onSubmit.bind(this)} formType="submit">
-          提交
-        </AtButton>
-        <AtButton onReset={this.onReset.bind(this)} formType="reset">
+        <View className="location-radio">
+          <AtButton onClick={this.onSubmit.bind(this)} formType="submit">
+            🎾 确定 🎾
+          </AtButton>
+        </View>
+        <AtButton onClick={this.onReset.bind(this)} formType="reset">
           重置
         </AtButton>
       </View>
