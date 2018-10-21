@@ -1,10 +1,14 @@
 page {
   background: #f3f2f3;
-  background-image: url('./background-ball-m.jpg') center center no-repeat;
   background-size: cover;
 }
 .wrapper {
   padding-top: 20px;
+  input,
+  picker {
+    border-radius: 0.6em;
+    animation: editable 4s ease-in-out 0s infinite alternate;
+  }
 }
 .date-picker,
 .time-picker,
@@ -63,4 +67,13 @@ page {
 
 .location-radio {
   margin-bottom: 0.5em;
+}
+
+@keyframes editable {
+  from {
+    box-shadow: 0 0 10px green;
+  }
+  to {
+    box-shadow: 2px 6px 20px -6px yellowgreen;
+  }
 }

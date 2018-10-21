@@ -189,14 +189,13 @@ class Index extends Component {
             <View className="at-col">
               {this.state.editMode ? (
                 <Picker
+                  className="date-picker"
                   mode="date"
                   onChange={this.inputChange.bind(this, 'date')}
                 >
-                  <View className="date-picker">
-                    <View className="day">{this.state.form.date.slice(5)}</View>
-                    <View className="year">
-                      {this.state.form.date.slice(0, 4)}
-                    </View>
+                  <View className="day">{this.state.form.date.slice(5)}</View>
+                  <View className="year">
+                    {this.state.form.date.slice(0, 4)}
                   </View>
                 </Picker>
               ) : (
@@ -211,6 +210,7 @@ class Index extends Component {
             <View className="at-col">
               {this.state.editMode ? (
                 <Picker
+                  className="time-picker"
                   mode="multiSelector"
                   rangeKey="me"
                   onChange={this.stateChange.bind(this, 'period')}
@@ -218,28 +218,26 @@ class Index extends Component {
                   range={this.state.timeArray}
                   value={this.state.period}
                 >
-                  <View className="time-picker">
-                    <AtTimeline
-                      items={[
-                        {
-                          title: (
-                            (this.state.timeArray[0] || [])[
-                              this.state.period[0]
-                            ] || {}
-                          ).me,
-                          icon: 'clock'
-                        },
-                        {
-                          title: (
-                            (this.state.timeArray[1] || [])[
-                              this.state.period[1]
-                            ] || {}
-                          ).me,
-                          icon: 'clock'
-                        }
-                      ]}
-                    />
-                  </View>
+                  <AtTimeline
+                    items={[
+                      {
+                        title: (
+                          (this.state.timeArray[0] || [])[
+                            this.state.period[0]
+                          ] || {}
+                        ).me,
+                        icon: 'clock'
+                      },
+                      {
+                        title: (
+                          (this.state.timeArray[1] || [])[
+                            this.state.period[1]
+                          ] || {}
+                        ).me,
+                        icon: 'clock'
+                      }
+                    ]}
+                  />
                 </Picker>
               ) : (
                 <View className="time-picker">
@@ -280,7 +278,7 @@ class Index extends Component {
               onChange={this.inputChange.bind(this, 'detail')}
             />
           ) : (
-            <Text>{this.state.form.detail}</Text>
+            <Text>{this.state.form.detail || '多球练习'}</Text>
           )}
         </View>
         {this.state.editMode ? (
