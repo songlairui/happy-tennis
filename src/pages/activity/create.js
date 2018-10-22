@@ -117,10 +117,12 @@ class Index extends Component {
       api.report({ type: 'newActivity', remark: '' })
     }
     newState.loading = false
-    cache.lastForm = _.cloneDeep(this.state.form)
     this.changeMode(newState)
   }
   changeMode(newState = {}) {
+    if (!this.state.editMode) {
+      cache.lastForm = _.cloneDeep(this.state.form)
+    }
     this.setState({
       ...newState,
       editMode: !this.state.editMode
@@ -155,7 +157,6 @@ class Index extends Component {
           date,
           detail
         }
-        cache.lastForm = newState.form
         const [startIdx, endIdx] = ['start', 'end'].map(key =>
           Math.max(0, timeArray.findIndex(item => item.me === activity[key]))
         )

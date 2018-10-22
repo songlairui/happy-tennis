@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 
-const baseDomain = 'http://192.168.50.64:3001'
+const baseDomain = 'https://songlairui.cn/tennis'
 
 const apiFn = ({ method = 'GET', url = '', auth = false }) => data =>
   new Promise((success, fail) => {
