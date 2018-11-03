@@ -8,6 +8,7 @@ import {
   AtIcon,
   AtActivityIndicator
 } from 'taro-ui'
+import wsUtil from '../../utils/wsUtil'
 import * as api from '../../api'
 
 import './create.less'
@@ -29,11 +30,18 @@ const cache = {
   lastForm: {}
 }
 
+const wsActions = ['wander', 'join', 'bye', 'cancel', 'ask4off']
+const userGroup = ['available', 'ask4off', 'traces', 'onlines']
+
+const validId = id => !['', undefined, null].includes(id)
+
 class Index extends Component {
   constructor(props) {
     super(props)
     const start = 4 // 20:00
     this.state = {
+      client: wsUtil.genClient(),
+      connected: false,
       id: '',
       form: {
         title: '快乐网球召集',
@@ -45,7 +53,30 @@ class Index extends Component {
       period: [4, 2],
       timeArray: [[...timeArray], timeArray.slice(start)],
       loading: true,
-      editMode: false
+      editMode: false,
+      wxUsers: userGroup.reduce((r, k) => ((r[k] = []), r), {})
+    }
+  }
+  async componentWillMount() {
+    this.state.client.onConnect(() => {
+      this.state.connected = true
+    })
+    this.state.client.onDisconnect(() => {
+      this.state.connected = false
+    })
+  }
+  async connect() {
+    if (!this.state.connected) {
+      this.state.connected = true
+      await this.state.client.connect({
+        auth: { headers: { authorization: Taro.getStorageSync('jwtInfo') } }
+      })
+    }
+  }
+  async componentDidMount() {
+    console.info('set onUpdate')
+    this.state.client.onUpdate = update => {
+      console.info('update', update)
     }
   }
   inputChange(key, e) {
@@ -139,16 +170,33 @@ class Index extends Component {
     }
     return {
       title: this.state.form.title,
-      path: `/page/create/index?id=${this.state.id}`
+      path: `/pages/activity/create?id=${this.state.id}`
     }
   }
 
   async componentDidShow() {
+    console.info('didShow')
+    await this.connect()
     const { id } = this.$router.params
-    const newState = { loading: false, editMode: id === undefined }
+    const newState = { loading: false, editMode: !validId(id) }
     if (id !== undefined) {
+      const oldId = this.state.id
       newState.id = id
+      const handler = act => update => {
+        this.operate(act, update)
+      }
+      if (oldId !== id) {
+        validId(oldId) &&
+          wsActions.forEach(act => {
+            this.state.client.unsubscribe(`/online/${oldId}/${act}`, null)
+          })
+          validId(id) &&
+          wsActions.forEach(act => {
+            this.state.client.subscribe(`/online/${id}/${act}`, handler(act))
+          })
+      }
       const activity = await api.getActivity(id).catch(console.error)
+
       if (activity) {
         const { title, location, date, detail } = activity
         newState.form = {
@@ -165,6 +213,60 @@ class Index extends Component {
       }
     }
     this.setState(newState)
+    this.act('wander')
+  }
+  async componentWillUnmount() {
+    const { id } = this.state
+    console.info('umount', id)
+    this.act('bye')
+
+    setTimeout(() => {
+      this.state.client.unsubscribe(`/online/${id}/wander`, null)
+      this.state.client.disconnect()
+    }, 500)
+  }
+  async componentDidHide() {
+    console.info('componentDidHide')
+  }
+  operate(act, update) {
+    let {
+      wxUsers: { available, ask4off, traces, onlines }
+    } = this.state
+    const append = (arr, user) => {
+      const newArr = arr.filter(({ id }) => id !== user.id)
+      newArr.push(user)
+      arr.splice(0, Infinity, ...newArr)
+    }
+    const remove = (arr, user) => {
+      const newArr = arr.filter(({ id }) => id !== user.id)
+      arr.splice(0, Infinity, ...newArr)
+    }
+    switch (act) {
+      case 'wander':
+        append(onlines, update)
+        append(traces, update)
+      case 'bye':
+        remove(onlines, update)
+        break
+      case 'join':
+        append(available, update)
+        remove(ask4off, update)
+        break
+      case 'cancel':
+        remove(available, update)
+        break
+      case 'ask4off':
+        remove(available, update)
+        append(ask4off, update)
+        break
+    }
+    this.setState({ wxUsers: { available, ask4off, traces, onlines } })
+  }
+  async act(type) {
+    const { id } = this.state
+    if (validId(id)) {
+      this.state.client.request(`/activity/${id}/event/${type}`)
+    }
   }
   render() {
     return (
@@ -303,8 +405,39 @@ class Index extends Component {
               <Button className="share" open-type="share">
                 召集
               </Button>
+              {wsActions.map(actName => (
+                <Button
+                  key={actName}
+                  className="share"
+                  onClick={this.act.bind(this, actName)}
+                >
+                  {actName}
+                </Button>
+              ))}
             </View>
           )}
+
+        <View className="users available">
+          {this.state.wxUsers.available.map(user => (
+            <View key={user.id} className="user">
+              {user.id}
+            </View>
+          ))}
+        </View>
+        <View className="users ask4off">
+          {this.state.wxUsers.ask4off.map(user => (
+            <View key={user.id} className="user">
+              {user.id}
+            </View>
+          ))}
+        </View>
+        <View className="users traces">
+          {this.state.wxUsers.traces.map(user => (
+            <View key={user.id} className="user">
+              {user.id}
+            </View>
+          ))}
+        </View>
         <View className="form-item fixed">
           {this.state.editMode ? (
             <AtButton onClick={this.onSubmit.bind(this)}>🎾 确定 🎾</AtButton>
