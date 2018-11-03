@@ -27,12 +27,11 @@ class App extends Component {
       'pages/today/index'
     ],
     window: {
-      // navigationStyle: 'custom',
+      navigationStyle: 'custom',
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
-      navigationBarTextStyle: 'black',
-      navigationStyle: 'custom'
+      navigationBarTextStyle: 'black'
     }
   }
 
