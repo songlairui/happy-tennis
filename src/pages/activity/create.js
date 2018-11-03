@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, Input, Picker, Button } from '@tarojs/components'
+import { View, Text, Input, Picker, Button, Image } from '@tarojs/components'
 import {
   AtButton,
   AtRadio,
@@ -190,7 +190,7 @@ class Index extends Component {
           wsActions.forEach(act => {
             this.state.client.unsubscribe(`/online/${oldId}/${act}`, null)
           })
-          validId(id) &&
+        validId(id) &&
           wsActions.forEach(act => {
             this.state.client.subscribe(`/online/${id}/${act}`, handler(act))
           })
@@ -416,28 +416,16 @@ class Index extends Component {
               ))}
             </View>
           )}
+        {['available', 'ask4off', 'traces'].map(group => (
+          <View className={`users ${group}`} key={group}>
+            {this.state.wxUsers[group].map(user => (
+              <View key={user.id} className="user">
+                <Image style="width: 100%;height: 100%;" src={user.avatarUrl} />
+              </View>
+            ))}
+          </View>
+        ))}
 
-        <View className="users available">
-          {this.state.wxUsers.available.map(user => (
-            <View key={user.id} className="user">
-              {user.id}
-            </View>
-          ))}
-        </View>
-        <View className="users ask4off">
-          {this.state.wxUsers.ask4off.map(user => (
-            <View key={user.id} className="user">
-              {user.id}
-            </View>
-          ))}
-        </View>
-        <View className="users traces">
-          {this.state.wxUsers.traces.map(user => (
-            <View key={user.id} className="user">
-              {user.id}
-            </View>
-          ))}
-        </View>
         <View className="form-item fixed">
           {this.state.editMode ? (
             <AtButton onClick={this.onSubmit.bind(this)}>🎾 确定 🎾</AtButton>
