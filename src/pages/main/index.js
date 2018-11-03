@@ -14,12 +14,13 @@ class Index extends Component {
       toast: {
         visible: false,
         text: '',
-        status: ''
+        status: 'success'
       }
     }
   }
   config = {
-    navigationBarTitleText: 'MAIN'
+    navigationBarTitleText: 'MAIN',
+    navigationStyle: 'custom'
   }
 
   componentWillReceiveProps(nextProps) {
@@ -27,6 +28,7 @@ class Index extends Component {
   }
 
   componentWillUnmount() {}
+  componentWillMount() {}
 
   componentDidShow() {
     this.login()
@@ -53,7 +55,15 @@ class Index extends Component {
     })
   }
   async login() {
-    if (Taro.getStorageSync('jwtInfo')) return console.info('has logon')
+    if (Taro.getStorageSync('jwtInfo')) {
+      try {
+        await api.myInfo()
+        return console.info('has logon')
+      } catch (err) {
+        console.info('jwtInfo 过期')
+        Taro.removeStorageSync('jwtInfo')
+      }
+    }
     try {
       const { code } = await new Promise((success, fail) =>
         Taro.login({ success, fail })
@@ -116,7 +126,7 @@ class Index extends Component {
   }
   async handleClose() {
     this.setState({
-      toast: { visible: false, status: '' }
+      toast: { visible: false, status: 'success' }
     })
   }
   render() {
