@@ -1,5 +1,8 @@
 {
   "extends": ["taro"],
+  "globals": {
+    "wx": true
+  },
   "rules": {
     "jsx-quotes": ["error", "prefer-double"],
     "no-unused-vars": ["error", { "varsIgnorePattern": "Taro" }],
