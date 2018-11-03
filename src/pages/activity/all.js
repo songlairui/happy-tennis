@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { AtList, AtListItem } from 'taro-ui'
+import { AtButton, AtList, AtListItem } from 'taro-ui'
 import * as api from '../../api'
 
 import './index.less'
@@ -26,10 +26,20 @@ class Index extends Component {
       url: `/pages/activity/create?id=${id}`
     })
   }
-
+  async handleGoto(target) {
+    Taro.navigateTo({
+      url: target
+    })
+  }
   render() {
     return (
       <View>
+        <AtButton
+          type="secondary"
+          onClick={this.handleGoto.bind(this, '/pages/main/index')}
+        >
+          返回
+        </AtButton>
         <AtList>
           {this.state.activities.map(activity => (
             <AtListItem
