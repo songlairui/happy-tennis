@@ -1,6 +1,9 @@
 import Taro from '@tarojs/taro'
 
-const baseDomain = 'https://songlairui.cn/tennis'
+export const baseDomain =
+  process.env.NODE_ENV === 'production'
+    ? 'https://songlairui.cn/tennis'
+    : 'http://192.168.50.64:3002'
 
 const apiFn = ({ method = 'GET', url = '', auth = false }) => data =>
   new Promise((success, fail) => {
