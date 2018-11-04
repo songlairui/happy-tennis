@@ -14,12 +14,13 @@ page {
     z-index: 99;
   }
   .location-radio,
-  input,
+  .editable,
   picker {
     border-radius: 0.6em;
     animation: editable 4s ease-in-out 0s infinite alternate;
   }
 }
+.desc,
 .date-picker,
 .time-picker,
 .title,
@@ -37,6 +38,11 @@ page {
   margin: 1em;
   padding: 0.5em 2em;
 }
+.desc {
+  margin: 0.5em;
+  padding: 0.3em 0.6em;
+  min-height: 4.5em;
+}
 
 .location-radio,
 .form-item,
@@ -45,25 +51,25 @@ page {
   margin: 0 1em;
   background: #fff;
 }
-.date-picker {
-  padding: 1em 0;
-  font-size: 0.8em;
-  text-indent: 2em;
-  .day {
-    font-size: 2em;
-    font-weight: bold;
-    color: #333;
-    line-height: 1.8em;
+.activity-date {
+  flex: 0 0 6em;
+  text-align: center;
+  .month {
+    color: #fa3e3e;
   }
-  .year {
-    font-size: 1em;
-    font-style: italic;
-    text-indent: 5em;
+  .day {
+    font-size: 1.5em;
+    line-height: 1.5em;
     color: #555;
   }
 }
+.date-picker {
+  padding: 0.5em 0;
+  font-size: 0.8em;
+}
+
 .time-picker {
-  padding: 1em 2em;
+  padding: .2em 1.6em 0;
 }
 .title {
   text-align: center;
