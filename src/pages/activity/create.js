@@ -422,11 +422,38 @@ class Index extends Component {
         )}
         {!this.state.editMode &&
           this.state.id && (
+            <View className="user-groups">
+              {[
+                ['available', 'join', '已加入'],
+                ['ask4off', 'ask4off', '请假']
+              ].map((m, idx) => (
+                <View
+                  className={`users ${m[0]}`}
+                  key={idx}
+                  onClick={this.act.bind(this, m[1])}
+                >
+                  <Text className="label">{m[2]}</Text>
+                  {this.state.wxUsers[m[0]].map(user => (
+                    <View key={user.id} className="user">
+                      <Image
+                        style="width: 100%;height: 100%;"
+                        src={user.avatarUrl}
+                      />
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </View>
+          )}
+
+        {!this.state.editMode &&
+          this.state.id && (
             <View className="share-block">
-              <Button className="share" open-type="share">
-                召集
-              </Button>
-              {wsActions.map(actName => (
+              <AtButton type="primary" open-type="share" size="normal" circle>
+                <AtIcon value="share" size="16" color="#FFE" />
+                {' 分享'}
+              </AtButton>
+              {/* {wsActions.map(actName => (
                 <Button
                   key={actName}
                   className="share"
@@ -434,23 +461,9 @@ class Index extends Component {
                 >
                   {actName}
                 </Button>
-              ))}
+              ))} */}
             </View>
           )}
-        {!this.state.editMode &&
-          this.state.id &&
-          ['available', 'ask4off', 'traces'].map(group => (
-            <View className={`users ${group}`} key={group}>
-              {this.state.wxUsers[group].map(user => (
-                <View key={user.id} className="user">
-                  <Image
-                    style="width: 100%;height: 100%;"
-                    src={user.avatarUrl}
-                  />
-                </View>
-              ))}
-            </View>
-          ))}
 
         <View className="form-item fixed">
           {this.state.editMode ? (
