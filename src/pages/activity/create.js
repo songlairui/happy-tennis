@@ -81,7 +81,6 @@ class Index extends Component {
     }
   }
   async componentDidMount() {
-    console.info('set onUpdate')
     this.state.client.onUpdate = update => {
       console.info('update', update)
     }
@@ -197,10 +196,25 @@ class Index extends Component {
           wsActions.forEach(act => {
             this.state.client.unsubscribe(`/online/${oldId}/${act}`, null)
           })
-        validId(id) &&
+        if (validId(id)) {
+          console.info('startSubscribe')
           wsActions.forEach(act => {
             this.state.client.subscribe(`/online/${id}/${act}`, handler(act))
           })
+          await Promise.all(
+            userGroup.map(async group => {
+              const users = await api.getActivityPlayer(id, group)()
+              this.setState(state => {
+                const currentIds = state.wxUsers[group].map(user => user.id)
+                state.wxUsers[group] = [
+                  ...state.wxUsers[group],
+                  ...users.filter(user => !currentIds.includes(user.id))
+                ]
+                return state
+              })
+            })
+          )
+        }
       }
       const activity = await api.getActivity(id).catch(console.error)
 
